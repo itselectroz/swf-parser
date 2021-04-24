@@ -15,7 +15,7 @@ export class SWFHeader {
     fileLength: number;
     frameSize: Rect;
     frameRate: number;
-    frameCount: Number;
+    frameCount: number;
 
     constructor(compression: HEADER_COMPRESSION, version: number, fileLength: number, frameSize: Rect, frameRate: number, frameCount: number) {
         this.compression = compression;
@@ -46,8 +46,24 @@ export class SWFHeader {
         
         const frameSize = Rect.read(buffer);
         const frameRate = buffer.readUInt16() / 256; // 1 << 8
-        let frameCount = buffer.readUInt16();
+        const frameCount = buffer.readUInt16();
 
         return new SWFHeader(compression, version, fileLength, frameSize, frameRate, frameCount);
+    }
+
+    write(buffer: ExtendedBuffer) : void {
+        buffer.writeUInt8(this.compression);
+        
+        buffer.writeUInt8(Signature.charCodeAt(0));
+        buffer.writeUInt8(Signature.charCodeAt(1));
+
+        buffer.writeUInt8(this.version);
+        buffer.writeUInt32(this.fileLength);
+
+        // Need to compress the SWF at a later date
+
+        this.frameSize.write(buffer);
+        buffer.writeUInt16(Math.floor(this.frameRate * 256));
+        buffer.writeUInt16(this.frameCount);
     }
 }
