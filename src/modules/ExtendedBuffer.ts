@@ -1,3 +1,5 @@
+import { inflateSync } from 'zlib';
+
 export const MASKS = [0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535,131071,262143,524287,1048575,2097151,4194303,8388607,16777215,33554431,67108863,134217727,268435455,536870911,1073741823,2147483647,-1];
 
 export class ExtendedBuffer {
@@ -10,6 +12,10 @@ export class ExtendedBuffer {
         this.buffer = buffer;
         this.offset = 0;
         this.bitOffset = 0;
+    }
+
+    static getBitSize(value: number) : number {
+        return Math.floor(Math.log2(value)) + 1;
     }
 
     incrementBitOffset(amount: number) : void {
@@ -186,11 +192,14 @@ export class ExtendedBuffer {
     }
 
     readUBits(count: number) : number {
-        return this.readBits(count) >>> 0;
+        return this.readBits(count) & ((1 << count) - 1);
     }
 
     writeUBits(value: number, count: number) : void {
-        this.writeBits(value >>> 0, count);
+        this.writeBits(value & ((1 << count) - 1), count);
     }
 
+    zlibInflate() : void {
+        this.buffer = Buffer.concat([this.buffer.slice(0, this.offset), inflateSync(this.buffer.slice(this.offset))])
+    }
 }
