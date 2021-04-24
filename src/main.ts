@@ -1,1 +1,1 @@
-console.log("Hello world");
+export { ExtendedBuffer } from './modules/ExtendedBuffer';
