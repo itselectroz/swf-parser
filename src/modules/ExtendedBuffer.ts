@@ -14,6 +14,10 @@ export class ExtendedBuffer {
         this.bitOffset = 0;
     }
 
+    get bytesAvailable() {
+        return this.buffer.length - this.offset;
+    }
+
     static getBitSize(value: number) : number {
         return Math.floor(Math.log2(value)) + 1;
     }
