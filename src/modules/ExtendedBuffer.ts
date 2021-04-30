@@ -203,6 +203,14 @@ export class ExtendedBuffer {
         this.writeBits(value & ((1 << count) - 1), count);
     }
 
+    readFBits(count: number) : number {
+        return this.readUBits(count) / (1 << 16);
+    }
+
+    writeFBits(value: number, count: number) : void {
+        this.writeUBits(value << 16, count);
+    }
+
     zlibInflate() : void {
         this.buffer = Buffer.concat([this.buffer.slice(0, this.offset), inflateSync(this.buffer.slice(this.offset))])
     }
