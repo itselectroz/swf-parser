@@ -19,7 +19,64 @@ export class Matrix {
         this.translateY = translateY || 0;
     }
 
-    
+    get hasScale() {
+        return this.scaleX != undefined || this.scaleY != undefined;
+    }
+
+    get hasRotation() {
+        return this.rotateSkew0 != undefined || this.rotateSkew1 != undefined;
+    }
+
+    write(buffer: ExtendedBuffer) {
+        const hasScale = this.hasScale;
+        buffer.writeUBits(hasScale ? 1 : 0, 1);
+        if(this.hasScale) {
+            if(this.scaleX == undefined) {
+                this.scaleX = 1;
+            }
+            if(this.scaleY == undefined) {
+                this.scaleY = 1;
+            }
+
+            const fScaleX = this.scaleX << 16;
+            const fScaleY = this.scaleY << 16;
+            const nbits = Math.max(
+                ExtendedBuffer.getBitSize(fScaleX),
+                ExtendedBuffer.getBitSize(fScaleY)
+            );
+
+            buffer.writeFBits(this.scaleX, nbits);
+            buffer.writeFBits(this.scaleY, nbits);
+        }
+
+        const hasRotation = this.hasRotation;
+        buffer.writeUBits(hasRotation ? 1 : 0, 1);
+        if(this.hasRotation) {
+            if(this.rotateSkew0 == undefined) {
+                this.rotateSkew0 = 1;
+            }
+            if(this.rotateSkew1 == undefined) {
+                this.rotateSkew1 = 1;
+            }
+
+            const frotateSkew0 = this.rotateSkew0 << 16;
+            const frotateSkew1 = this.rotateSkew1 << 16;
+            const nbits = Math.max(
+                ExtendedBuffer.getBitSize(frotateSkew0),
+                ExtendedBuffer.getBitSize(frotateSkew1)
+            );
+
+            buffer.writeFBits(this.rotateSkew0, nbits);
+            buffer.writeFBits(this.rotateSkew1, nbits);
+        }
+
+        const ntranslateBits = Math.max(
+            ExtendedBuffer.getBitSize(this.translateX),
+            ExtendedBuffer.getBitSize(this.translateY)
+        );
+        buffer.writeBits(this.translateX, ntranslateBits);
+        buffer.writeBits(this.translateY, ntranslateBits);
+    }
     
     static read(buffer: ExtendedBuffer) : Matrix {
         const matrix = new Matrix();
