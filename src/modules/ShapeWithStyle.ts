@@ -1,5 +1,6 @@
 import { ExtendedBuffer } from "./ExtendedBuffer";
 import { FillStyleArray } from "./FillStyleArray";
+import { LineStyleArray } from "./LineStyleArray";
 
 export class ShapeWithStyle {
     static read(buffer: ExtendedBuffer, level?: number) : ShapeWithStyle {
@@ -10,6 +11,7 @@ export class ShapeWithStyle {
         const numFillBits = buffer.readUBits(4);
         const numLineBits = buffer.readUBits(4);
         
+
         return new ShapeWithStyle();
     }
 }
