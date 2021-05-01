@@ -9,6 +9,10 @@ export class RGBA extends RGB {
         this.alpha = alpha;
     }
 
+    get size() {
+        return super.size + 1;
+    }
+
     write(buffer: ExtendedBuffer) {
         super.write(buffer);
         buffer.writeUInt8(this.alpha);

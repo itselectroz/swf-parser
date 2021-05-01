@@ -27,6 +27,33 @@ export class Matrix {
         return this.rotateSkew0 != undefined || this.rotateSkew1 != undefined;
     }
 
+    get size() {
+        let bits = 2; // hasScale and hasRotation
+        if(this.hasScale) {
+            bits += 5;
+            const nbits = Math.max(
+                ExtendedBuffer.getBitSize((this.scaleX || 0) << 16),
+                ExtendedBuffer.getBitSize((this.scaleY || 0) << 16)
+            );
+            bits += nbits * 2;
+        }
+        if(this.hasRotation) {
+            bits += 5;
+            const nbits = Math.max(
+                ExtendedBuffer.getBitSize((this.rotateSkew0 || 0) << 16),
+                ExtendedBuffer.getBitSize((this.rotateSkew1 || 0) << 16)
+            );
+            bits += nbits * 2;
+        }
+
+        const ntranslateBits = Math.max(
+            ExtendedBuffer.getBitSize(this.translateX),
+            ExtendedBuffer.getBitSize(this.translateY)
+        );
+        bits += ntranslateBits * 2;
+        return Math.ceil(bits / 8);
+    }
+
     write(buffer: ExtendedBuffer) {
         const hasScale = this.hasScale;
         buffer.writeUBits(hasScale ? 1 : 0, 1);
@@ -44,6 +71,8 @@ export class Matrix {
                 ExtendedBuffer.getBitSize(fScaleX),
                 ExtendedBuffer.getBitSize(fScaleY)
             );
+
+            buffer.writeUBits(nbits, 5);
 
             buffer.writeFBits(this.scaleX, nbits);
             buffer.writeFBits(this.scaleY, nbits);
@@ -65,6 +94,8 @@ export class Matrix {
                 ExtendedBuffer.getBitSize(frotateSkew0),
                 ExtendedBuffer.getBitSize(frotateSkew1)
             );
+
+            buffer.writeUBits(nbits, 5);
 
             buffer.writeFBits(this.rotateSkew0, nbits);
             buffer.writeFBits(this.rotateSkew1, nbits);

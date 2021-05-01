@@ -11,6 +11,10 @@ export class GradientRecord {
         this.color = color;
     }
 
+    get size() {
+        return 1 + (this.color instanceof RGBA ? 4 : 3);
+    }
+
     /*
         The level parameter here is useless HOWEVER I have kept it
         in to remind me and others that the output size can vary

@@ -9,6 +9,10 @@ export class ARGB extends RGB {
         this.alpha = alpha;
     }
 
+    get size() {
+        return super.size + 1;
+    }
+
     write(buffer: ExtendedBuffer) {
         buffer.writeUInt8(this.alpha);
         super.write(buffer);

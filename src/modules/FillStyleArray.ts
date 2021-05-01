@@ -7,6 +7,10 @@ export class FillStyleArray {
     constructor(fillStyles: FillStyle[]) {
         this.fillStyles = fillStyles;
     }
+
+    get size() {
+        return 1 + (this.fillStyles.length > 0xFF ? 2 : 0) + this.fillStyles.reduce((size, v) => size + v.size, 0);
+    }
     
     write(buffer: ExtendedBuffer, level?: number) {
         level = level || 1;

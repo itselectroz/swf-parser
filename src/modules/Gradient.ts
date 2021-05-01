@@ -26,6 +26,10 @@ export class Gradient {
         this.gradients = gradients;
     }
 
+    get size() {
+        return 1 + this.gradients.reduce((size, v) => size + v.size, 0);
+    }
+
     write(buffer: ExtendedBuffer, level?: number) {
         level = level || 1;
 

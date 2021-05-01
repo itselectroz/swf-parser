@@ -10,6 +10,10 @@ export class FocalGradient extends Gradient {
         this.focalPoint = focalPoint;
     }
 
+    get size() {
+        return super.size + 1;
+    }
+
     write(buffer: ExtendedBuffer, level?: number) {
         level = level || 1;
         

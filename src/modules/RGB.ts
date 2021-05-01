@@ -11,6 +11,10 @@ export class RGB {
         this.blue = blue;
     }
 
+    get size() {
+        return 3;
+    }
+
     write(buffer: ExtendedBuffer) {
         buffer.writeUInt8(this.red);
         buffer.writeUInt8(this.green);
