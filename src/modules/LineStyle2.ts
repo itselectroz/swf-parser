@@ -58,7 +58,7 @@ export class LineStyle2 {
         buffer.writeUBits(this.endCapStyle, 2);
 
         if(this.joinStyle == JoinStyle.Miter) {
-            buffer.writeUInt16(this.miterLimitFactor as number);
+            buffer.writeUInt16(Math.floor(this.miterLimitFactor as number * (1 << 8)));
         }
 
         if(this.hasFillFlag == false) {
@@ -86,7 +86,7 @@ export class LineStyle2 {
         const result = new LineStyle2(width, startCapStyle, joinStyle, hasFillFlag, noHScaleFlag, noVScaleFlag, pixelHintingFlag, noClose, endCapStyle);
 
         if(joinStyle == JoinStyle.Miter) {
-            result.miterLimitFactor = buffer.readUInt16();
+            result.miterLimitFactor = buffer.readUInt16() / (1 << 8);
         }
 
         if(hasFillFlag == false) {

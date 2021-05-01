@@ -5,6 +5,7 @@ import { LineStyle2 } from "./LineStyle2";
 export type LineStyleEntry = LineStyle | LineStyle2
 
 export class LineStyleArray {
+    // Please note: In the SWF style arrays begin at index 1
     lineStyles: LineStyleEntry[];
 
     constructor(lineStyles: LineStyleEntry[]) {

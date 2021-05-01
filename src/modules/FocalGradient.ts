@@ -24,7 +24,7 @@ export class FocalGradient extends Gradient {
         super.write(buffer, level);
 
         // Convert focal point to FIXED8
-        const focalPoint = this.focalPoint * (1 << 8);
+        const focalPoint = Math.floor(this.focalPoint * (1 << 8));
         buffer.writeUInt8(focalPoint);
     }
 

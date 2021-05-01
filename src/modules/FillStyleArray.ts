@@ -2,6 +2,7 @@ import { ExtendedBuffer } from "./ExtendedBuffer";
 import { FillStyle } from "./FillStyle";
 
 export class FillStyleArray {
+    // Please note: In the SWF style arrays begin at index 1
     fillStyles: FillStyle[];
 
     constructor(fillStyles: FillStyle[]) {

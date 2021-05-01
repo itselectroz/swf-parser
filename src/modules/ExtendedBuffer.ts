@@ -28,10 +28,15 @@ export class ExtendedBuffer {
         this.bitOffset = newOffset % 8;
     }
 
-    setByteAligned() : void {
+    setByteAligned(write?: boolean) : void {
         if(this.bitOffset != 0) {
-            this.offset++;
-            this.bitOffset = 0;
+            if(write) {
+                this.writeUBits(0, 8 - this.bitOffset);
+            }
+            else {
+                this.offset++;
+                this.bitOffset = 0;
+            }
         }
     }
 
@@ -44,7 +49,7 @@ export class ExtendedBuffer {
     }
 
     writeBytes(data: Buffer) : void {
-        this.setByteAligned();
+        this.setByteAligned(true);
         const count = data.length;
         data.copy(this.buffer, this.offset, 0, count);
         this.offset += count;
@@ -56,7 +61,7 @@ export class ExtendedBuffer {
     }
 
     writeUInt8(value: number) : void {
-        this.setByteAligned();
+        this.setByteAligned(true);
         this.buffer.writeUInt8((value >>> 0) & 0xFF, this.offset++);
     }
 
@@ -66,7 +71,7 @@ export class ExtendedBuffer {
     }
 
     writeInt8(value: number) : void {
-        this.setByteAligned();
+        this.setByteAligned(true);
         this.buffer.writeInt8(value, this.offset++);
     }
 
@@ -78,7 +83,7 @@ export class ExtendedBuffer {
     }
     
     writeUInt16(value: number) : void {
-        this.setByteAligned();
+        this.setByteAligned(true);
         this.buffer.writeUInt16LE((value >>> 0) & 0xFFFF, this.offset);
         this.offset += 2;
     }
@@ -91,7 +96,7 @@ export class ExtendedBuffer {
     }
     
     writeInt16(value: number) : void {
-        this.setByteAligned();
+        this.setByteAligned(true);
         this.buffer.writeInt16LE(value, this.offset);
         this.offset += 2;
     }
@@ -104,7 +109,7 @@ export class ExtendedBuffer {
     }
     
     writeUInt32(value: number) : void {
-        this.setByteAligned();
+        this.setByteAligned(true);
         this.buffer.writeUInt32LE(value >>> 0, this.offset);
         this.offset += 4;
     }
@@ -117,7 +122,7 @@ export class ExtendedBuffer {
     }
     
     writeInt32(value: number) : void {
-        this.setByteAligned();
+        this.setByteAligned(true);
         this.buffer.writeInt32LE(value, this.offset);
         this.offset += 4;
     }
