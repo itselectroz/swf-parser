@@ -4,6 +4,8 @@ export class Tag {
     type: number;
     length: number;
 
+    data?: Buffer;
+
     constructor(type: number, length: number) {
         this.type = type;
         this.length = length;
@@ -14,27 +16,38 @@ export class Tag {
     }
 
     get size() {
-        return this.shortTag ? 2 : 6;
+        return (this.shortTag ? 2 : 6) + this.length;
     }
 
-    static read(buffer: ExtendedBuffer) : Tag {
+    static read(buffer: ExtendedBuffer, data: boolean = false) : Tag {
         const tagCodeAndLength = buffer.readUInt16();
 
-        const type = (tagCodeAndLength >> 6) & 0x3FF;
+        const type = (tagCodeAndLength >> 6);
         let length = (tagCodeAndLength) & 0x3F;
         
         if(length == 0x3F) {
             length = buffer.readUInt32();
         }
 
-        return new Tag(type, length);
+        const tag = new Tag(type, length);
+        if(data) {
+            const data: Buffer = buffer.readBytes(length);
+            tag.data = data;
+        }
+        return tag;
     }
 
     write(buffer: ExtendedBuffer) : void {
-        let tagCodeAndLength = (this.type << 6) | (this.length & 0x63);
-        buffer.writeUInt16(tagCodeAndLength);
         if(!this.shortTag) {
+            buffer.writeUInt16((this.type << 6) | 0x3F);
             buffer.writeUInt32(this.length);
+        }
+        else {
+            buffer.writeUInt16((this.type << 6) | (this.length & 0x3F));
+        }
+
+        if(this.data != undefined) {
+            buffer.writeBytes(this.data);
         }
     }
 

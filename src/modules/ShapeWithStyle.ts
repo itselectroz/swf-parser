@@ -51,6 +51,8 @@ export class ShapeWithStyle {
                 }
             }
 
+            console.log(type, endRecord);
+
             if(endRecord) {
                 break;
             }

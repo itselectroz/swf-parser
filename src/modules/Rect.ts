@@ -15,10 +15,10 @@ export class Rect {
 
     get numBits() {
         return Math.max(
-            ExtendedBuffer.getBitSize(this.xmin),
-            ExtendedBuffer.getBitSize(this.xmax),
-            ExtendedBuffer.getBitSize(this.ymin),
-            ExtendedBuffer.getBitSize(this.xmax)
+            ExtendedBuffer.getBitSize(this.xmin, true),
+            ExtendedBuffer.getBitSize(this.xmax, true),
+            ExtendedBuffer.getBitSize(this.ymin, true),
+            ExtendedBuffer.getBitSize(this.xmax, true)
         );
     }
 
@@ -41,6 +41,9 @@ export class Rect {
     write(buffer: ExtendedBuffer) {
         buffer.setByteAligned();
         const numBits = this.numBits;
+
+        console.log(numBits);
+
         buffer.writeUBits(numBits, 5);
         buffer.writeBits(this.xmin, numBits);
         buffer.writeBits(this.xmax, numBits);

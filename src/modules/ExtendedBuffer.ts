@@ -1,4 +1,4 @@
-import { inflateSync } from 'zlib';
+import { deflateSync, inflateSync } from 'zlib';
 
 export const MASKS = [0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535,131071,262143,524287,1048575,2097151,4194303,8388607,16777215,33554431,67108863,134217727,268435455,536870911,1073741823,2147483647,-1];
 
@@ -18,8 +18,14 @@ export class ExtendedBuffer {
         return this.buffer.length - this.offset;
     }
 
-    static getBitSize(value: number) : number {
-        return Math.floor(Math.log2(value)) + 1;
+    static getBitSize(value: number, signed: boolean = false) : number {
+        return Math.floor(Math.log2(value)) + 1 + ((signed && value >= 0) ? 1 : 0);
+    }
+
+    resize(size: number) : void {
+        const newBuffer = Buffer.alloc(size);
+        this.buffer.copy(newBuffer);
+        this.buffer = newBuffer;
     }
 
     incrementBitOffset(amount: number) : void {
@@ -174,6 +180,11 @@ export class ExtendedBuffer {
     }
 
     writeBits(value: number, count: number) : void {
+        const byteCount = Math.ceil(count / 8);
+        if(byteCount > this.bytesAvailable) {
+            this.resize(this.offset + byteCount);
+        }
+
         if(value < 0) {
             value = ((1 << count - 1) | value) & ((1 << count) - 1);
         }
@@ -218,5 +229,11 @@ export class ExtendedBuffer {
 
     zlibInflate() : void {
         this.buffer = Buffer.concat([this.buffer.slice(0, this.offset), inflateSync(this.buffer.slice(this.offset))])
+    }
+
+    zlibDeflate(offset: number = 8) : void {
+        this.buffer = Buffer.concat([this.buffer.slice(0, offset), deflateSync(this.buffer.slice(offset), {
+            level: 7
+        })])
     }
 }

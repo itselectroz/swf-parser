@@ -60,8 +60,6 @@ export class SWFHeader {
         buffer.writeUInt8(this.version);
         buffer.writeUInt32(this.fileLength);
 
-        // Need to compress the SWF at a later date
-
         this.frameSize.write(buffer);
         buffer.writeUInt16(Math.floor(this.frameRate * 256));
         buffer.writeUInt16(this.frameCount);
