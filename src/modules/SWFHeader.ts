@@ -10,6 +10,8 @@ export enum HEADER_COMPRESSION {
 const Signature = "WS";
 
 export class SWFHeader {
+    static COMPRESSION_OFFSET = 8;
+
     compression: HEADER_COMPRESSION;
     version: number;
     fileLength: number;

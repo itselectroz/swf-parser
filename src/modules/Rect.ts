@@ -42,8 +42,6 @@ export class Rect {
         buffer.setByteAligned();
         const numBits = this.numBits;
 
-        console.log(numBits);
-
         buffer.writeUBits(numBits, 5);
         buffer.writeBits(this.xmin, numBits);
         buffer.writeBits(this.xmax, numBits);

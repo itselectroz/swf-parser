@@ -20,10 +20,16 @@ export class Matrix {
     }
 
     get hasScale() {
+        if(this.scaleX == 1 && this.scaleY == 1) {
+            return false;
+        }
         return this.scaleX != undefined || this.scaleY != undefined;
     }
 
     get hasRotation() {
+        if(this.rotateSkew0 == 0 && this.rotateSkew1 == 0) {
+            return false;
+        }
         return this.rotateSkew0 != undefined || this.rotateSkew1 != undefined;
     }
 
@@ -32,25 +38,27 @@ export class Matrix {
         if(this.hasScale) {
             bits += 5;
             const nbits = Math.max(
-                ExtendedBuffer.getBitSize((this.scaleX || 0) << 16),
-                ExtendedBuffer.getBitSize((this.scaleY || 0) << 16)
+                ExtendedBuffer.getBitSize(Math.floor(((this.scaleX || 0) * 65536) + 0.5), true),
+                ExtendedBuffer.getBitSize(Math.floor(((this.scaleY || 0) * 65536) + 0.5), true)
             );
             bits += nbits * 2;
         }
         if(this.hasRotation) {
             bits += 5;
             const nbits = Math.max(
-                ExtendedBuffer.getBitSize((this.rotateSkew0 || 0) << 16),
-                ExtendedBuffer.getBitSize((this.rotateSkew1 || 0) << 16)
+                ExtendedBuffer.getBitSize(Math.floor(((this.rotateSkew0 || 0) * 65536) + 0.5), true),
+                ExtendedBuffer.getBitSize(Math.floor(((this.rotateSkew1 || 0) * 65536) + 0.5), true)
             );
             bits += nbits * 2;
         }
 
         const ntranslateBits = Math.max(
-            ExtendedBuffer.getBitSize(this.translateX),
-            ExtendedBuffer.getBitSize(this.translateY)
+            ExtendedBuffer.getBitSize(Math.floor(this.translateX + 0.5), true),
+            ExtendedBuffer.getBitSize(Math.floor(this.translateY + 0.5), true)
         );
+        bits += 5;
         bits += ntranslateBits * 2;
+
         return Math.ceil(bits / 8);
     }
 
@@ -65,17 +73,18 @@ export class Matrix {
                 this.scaleY = 1;
             }
 
-            const fScaleX = this.scaleX << 16;
-            const fScaleY = this.scaleY << 16;
+            const scaleX = ExtendedBuffer.truncateTo31Bit(this.scaleX);
+            const scaleY = ExtendedBuffer.truncateTo31Bit(this.scaleY);
+
             const nbits = Math.max(
-                ExtendedBuffer.getBitSize(fScaleX),
-                ExtendedBuffer.getBitSize(fScaleY)
+                ExtendedBuffer.getBitSize(Math.floor((scaleX * 65536) + 0.5), true),
+                ExtendedBuffer.getBitSize(Math.floor((scaleY * 65536) + 0.5), true)
             );
 
             buffer.writeUBits(nbits, 5);
 
-            buffer.writeFBits(this.scaleX, nbits);
-            buffer.writeFBits(this.scaleY, nbits);
+            buffer.writeFBits(scaleX, nbits);
+            buffer.writeFBits(scaleY, nbits);
         }
 
         const hasRotation = this.hasRotation;
@@ -88,25 +97,38 @@ export class Matrix {
                 this.rotateSkew1 = 1;
             }
 
-            const frotateSkew0 = this.rotateSkew0 << 16;
-            const frotateSkew1 = this.rotateSkew1 << 16;
+            const rotateSkew0 = ExtendedBuffer.truncateTo31Bit(this.rotateSkew0);
+            const rotateSkew1 = ExtendedBuffer.truncateTo31Bit(this.rotateSkew1);
+
+
             const nbits = Math.max(
-                ExtendedBuffer.getBitSize(frotateSkew0),
-                ExtendedBuffer.getBitSize(frotateSkew1)
+                ExtendedBuffer.getBitSize(Math.floor((rotateSkew0 * 65536) + 0.5), true),
+                ExtendedBuffer.getBitSize(Math.floor((rotateSkew1 * 65536) + 0.5), true)
             );
 
             buffer.writeUBits(nbits, 5);
 
-            buffer.writeFBits(this.rotateSkew0, nbits);
-            buffer.writeFBits(this.rotateSkew1, nbits);
+            buffer.writeFBits(rotateSkew0, nbits);
+            buffer.writeFBits(rotateSkew1, nbits);
         }
 
-        const ntranslateBits = Math.max(
-            ExtendedBuffer.getBitSize(this.translateX),
-            ExtendedBuffer.getBitSize(this.translateY)
-        );
-        buffer.writeBits(this.translateX, ntranslateBits);
-        buffer.writeBits(this.translateY, ntranslateBits);
+        if(this.translateX == 0 && this.translateY == 0) {
+            buffer.writeUBits(0, 5);
+        }
+        else {
+            const translateX = ExtendedBuffer.truncateTo31Bit(this.translateX);
+            const translateY = ExtendedBuffer.truncateTo31Bit(this.translateY);
+            
+            const ntranslateBits = Math.max(
+                ExtendedBuffer.getBitSize(Math.floor(translateX + 0.5), true),
+                ExtendedBuffer.getBitSize(Math.floor(translateY + 0.5), true)
+            );
+    
+            buffer.writeUBits(ntranslateBits, 5);
+    
+            buffer.writeBits(translateX, ntranslateBits);
+            buffer.writeBits(translateY, ntranslateBits);
+        }
     }
     
     static read(buffer: ExtendedBuffer) : Matrix {

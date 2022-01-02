@@ -1,8 +1,9 @@
 import { isBuffer } from "node:util";
 import { ExtendedBuffer } from "../modules/ExtendedBuffer";
 import { Matrix } from "../modules/Matrix";
+import { ITagData } from "./ITagData";
 
-export class PlaceObject2 {
+export class PlaceObject2 implements ITagData {
     hasClipActionsFlag: boolean = false; // to be done at a later date
     hasClipDepthFlag: boolean;
     hasNameFlag: boolean;
@@ -19,7 +20,33 @@ export class PlaceObject2 {
     name?: string;
     clipDepth?: number;
     
-    
+    get size() : number {
+        let size = 1 + 2;
+        if(this.hasCharacterFlag) {
+            size += 2;
+        }
+        if(this.hasMatrixFlag && !!this.matrix) {
+            size += this.matrix.size;
+        }
+        if(this.hasColourTransformFlag) {
+            throw new Error("Colour Transform unsupported");
+        }
+        if(this.hasRatioFlag) {
+            size += 2;
+        }
+        if(this.hasNameFlag && this.name != undefined) {
+            size += 2 + this.name.length;
+        }
+        if(this.hasClipDepthFlag) {
+            size += 2;
+        }
+        if(this.hasClipActionsFlag) {
+            throw new Error("Clip Actions is currently unsupported");
+        }
+
+        return size;
+    }
+
     constructor(hasClipDepthFlag: boolean, hasNameFlag: boolean, hasRatioFlag: boolean, hasMatrixFlag: boolean, hasCharacterFlag: boolean, hasMoveFlag: boolean, depth: number) {
         this.hasClipDepthFlag = hasClipDepthFlag;
         this.hasNameFlag = hasNameFlag;
@@ -88,7 +115,7 @@ export class PlaceObject2 {
         buffer.writeUInt16(this.depth);
 
         if(this.hasCharacterFlag) {
-            if(!this.characterId) {
+            if(this.characterId == undefined) {
                 throw new Error("Has Character Flag is true but character id is undefined");
             }
             buffer.writeUInt16(this.characterId);

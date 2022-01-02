@@ -1,3 +1,6 @@
+import { ExtendedBuffer } from './modules/ExtendedBuffer';
+import { Tag } from './modules/Tag';
+
 export * from './modules/shape-records/EdgeRecord';
 export * from './modules/shape-records/EndShapeRecord';
 export * from './modules/shape-records/StraightEdgeRecord';
@@ -20,6 +23,10 @@ export * from './modules/RGBA';
 export * from './modules/ShapeWithStyle';
 export * from './modules/SWFHeader';
 export * from './modules/Tag';
+export * from './modules/SWFFile';
 
 export * from './tags/DefineShape';
 export * from './tags/PlaceObject2';
+export * from './tags/RemoveObject2';
+export * from './tags/SymbolClass';
+export * from './tags/ITagData';

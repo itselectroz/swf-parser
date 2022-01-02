@@ -1,3 +1,4 @@
+import { ITagData } from "../tags/ITagData";
 import { ExtendedBuffer } from "./ExtendedBuffer";
 
 export class Tag {
@@ -5,6 +6,7 @@ export class Tag {
     length: number;
 
     data?: Buffer;
+    tag?: ITagData;
 
     constructor(type: number, length: number) {
         this.type = type;
@@ -30,6 +32,7 @@ export class Tag {
         }
 
         const tag = new Tag(type, length);
+
         if(data) {
             const data: Buffer = buffer.readBytes(length);
             tag.data = data;
@@ -46,7 +49,10 @@ export class Tag {
             buffer.writeUInt16((this.type << 6) | (this.length & 0x3F));
         }
 
-        if(this.data != undefined) {
+        if(!!this.tag) {
+            this.tag.write(buffer);
+        }
+        else if(this.data != undefined) {
             buffer.writeBytes(this.data);
         }
     }

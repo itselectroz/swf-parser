@@ -19,7 +19,43 @@ export class ExtendedBuffer {
     }
 
     static getBitSize(value: number, signed: boolean = false) : number {
-        return Math.floor(Math.log2(value)) + 1 + ((signed && value >= 0) ? 1 : 0);
+        if(signed) {
+            let counter = 32;
+            let mask = 0x80000000;
+            let val = (value < 0) ? -value : value;
+            while (((val & mask) == 0) && (counter > 0)) {
+                mask >>>= 1;
+                counter -= 1;
+            }
+            return counter + 1;
+        }
+        else {
+            if (value == 0) {
+                return 0;
+            }
+    
+            value = Math.abs(value);
+            let x = 1;
+            let nBits;
+    
+            for (nBits = 1; nBits <= 64; nBits++) {
+                x <<= 1;
+                if (x > value) {
+                    break;
+                }
+            }
+            return nBits;
+        }
+    }
+
+    static truncateTo31Bit(value: number) : number {
+        if (value > 0x3fffffff) {
+            value = 0x3fffffff;
+        }
+        if (value < -0x3fffffff) {
+            value = -0x3fffffff;
+        }
+        return value;
     }
 
     resize(size: number) : void {
@@ -134,13 +170,22 @@ export class ExtendedBuffer {
     }
 
     readString() : string {
-        const size = this.readUInt16();
-        return this.readBytes(size).toString();
+        let str = "";
+
+        let bit = this.readUInt8();
+        while(bit != 0) {
+            str += String.fromCharCode(bit);
+            bit = this.readUInt8();
+        }
+        
+        return str;
     }
 
     writeString(value: string) : void {
-        this.writeUInt16(value.length);
-        this.writeBytes(Buffer.from(value));
+        for(let i = 0; i < value.length; i++) {
+            this.writeUInt8(value.charCodeAt(i));
+        }
+        this.writeUInt8(0);
     }
 
     readBits(count: number) : number {
@@ -185,10 +230,6 @@ export class ExtendedBuffer {
             this.resize(this.offset + byteCount);
         }
 
-        if(value < 0) {
-            value = ((1 << count - 1) | value) & ((1 << count) - 1);
-        }
-
         while(count > 0) {
             const byteOffset = this.offset;
             const bitOffset = this.bitOffset;
@@ -220,11 +261,11 @@ export class ExtendedBuffer {
     }
 
     readFBits(count: number) : number {
-        return this.readUBits(count) / (1 << 16);
+        return this.readBits(count) / (1 << 16);
     }
 
     writeFBits(value: number, count: number) : void {
-        this.writeUBits(value << 16, count);
+        this.writeBits(Math.floor((value * 65536) + 0.5), count);
     }
 
     zlibInflate() : void {
