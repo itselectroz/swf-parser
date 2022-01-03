@@ -30,3 +30,4 @@ export * from './tags/PlaceObject2';
 export * from './tags/RemoveObject2';
 export * from './tags/SymbolClass';
 export * from './tags/ITagData';
+export * from './tags/DoABC';
