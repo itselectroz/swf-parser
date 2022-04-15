@@ -31,3 +31,5 @@ export * from './tags/RemoveObject2';
 export * from './tags/SymbolClass';
 export * from './tags/ITagData';
 export * from './tags/DoABC';
+export * from './tags/DefineSprite';
+export * from './tags/FrameLabel';

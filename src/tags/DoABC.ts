@@ -12,6 +12,12 @@ export class DoABC implements ITagData{
         this.ABCData = abcdata;
     }
 
+    get size() {
+        return 4 // flags
+             + this.name.length + 1
+             + this.ABCData.length;
+    }
+
     static read(buffer: ExtendedBuffer) : DoABC {
         const flags = buffer.readUInt32();
         const name = buffer.readString();
